@@ -13,6 +13,8 @@ export default function ClaimPage() {
   const [step, setStep] = useState<'FORM' | 'OTP' | 'REVEAL'>('FORM');
   const [formData, setFormData] = useState<ClaimFormData | null>(null);
   const [sessionId, setSessionId] = useState<string>('');
+  const [sessionToken, setSessionToken] = useState<string>('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [certificateResult, setCertificateResult] = useState<{
     certificate: Certificate;
     isExisting: boolean;
@@ -23,43 +25,55 @@ export default function ClaimPage() {
 
   const handleFormSubmit = async (data: ClaimFormData) => {
     setFormData(data);
+    setErrorMessage(null);
     try {
       const fullPhone = `${data.countryCode} ${data.phoneNumber}`;
-      const res: SendOtpResponse = await sendOtpMutation.mutateAsync({
+      const res: any = await sendOtpMutation.mutateAsync({
         fullName: data.fullName,
         phoneNumber: fullPhone,
         countryCode: data.countryCode,
         country: data.country,
       });
 
-      if (res.sessionId) {
-        setSessionId(res.sessionId);
+      if (res.sessionId || res.sessionToken) {
+        setSessionId(res.sessionId || '');
+        setSessionToken(res.sessionToken || '');
         setStep('OTP');
+      } else {
+        setErrorMessage(res.message || 'Failed to send OTP code.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to send OTP', err);
+      setErrorMessage(err.message || 'Could not dispatch OTP code.');
     }
   };
 
   const handleVerifyOtp = async (otpCode: string) => {
-    if (!formData || !sessionId) return;
+    if (!formData) return;
+    setErrorMessage(null);
     try {
       const fullPhone = `${formData.countryCode} ${formData.phoneNumber}`;
-      const res: VerifyOtpResponse = await verifyOtpMutation.mutateAsync({
+      const res: any = await verifyOtpMutation.mutateAsync({
         sessionId,
+        sessionToken,
         otp: otpCode,
         phoneNumber: fullPhone,
-      });
+        fullName: formData.fullName,
+        country: formData.country,
+      } as any);
 
       if (res.certificate) {
         setCertificateResult({
           certificate: res.certificate,
-          isExisting: res.isExisting,
+          isExisting: res.isExisting || false,
         });
         setStep('REVEAL');
+      } else {
+        setErrorMessage(res.message || 'Verification failed. Please re-enter the OTP.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('OTP verification failed', err);
+      setErrorMessage(err.message || 'Incorrect OTP code. Please try again.');
     }
   };
 
@@ -140,6 +154,7 @@ export default function ClaimPage() {
                 onVerify={handleVerifyOtp}
                 onResend={handleResendOtp}
                 isLoading={verifyOtpMutation.isPending}
+                error={errorMessage}
               />
             </motion.div>
           )}

@@ -4,7 +4,7 @@ import { mockApiServices } from './mockAdapter';
 import { newsServices } from './newsAdapter';
 import { SendOtpPayload, VerifyOtpPayload } from '@/types/registry';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.cockroach.org/v1';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -17,18 +17,21 @@ export const apiClient = axios.create({
 export const registryApi = {
   sendOtp: async (payload: SendOtpPayload) => {
     try {
-      const res = await apiClient.post(API_ENDPOINTS.SEND_OTP, payload);
+      const res = await apiClient.post('/api/auth/send-otp', payload);
       return res.data;
-    } catch {
+    } catch (err: any) {
+      // Fallback to mock adapter if server environment unavailable
+      if (err.response?.data) return err.response.data;
       return mockApiServices.sendOtp(payload);
     }
   },
 
   verifyOtp: async (payload: VerifyOtpPayload) => {
     try {
-      const res = await apiClient.post(API_ENDPOINTS.VERIFY_OTP, payload);
+      const res = await apiClient.post('/api/auth/verify-otp', payload);
       return res.data;
-    } catch {
+    } catch (err: any) {
+      if (err.response?.data) throw new Error(err.response.data.message || 'OTP verification failed');
       return mockApiServices.verifyOtp(payload);
     }
   },
