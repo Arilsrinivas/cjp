@@ -25,15 +25,14 @@ import {
   limit,
 } from 'firebase/firestore';
 
-const PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '388127383153';
-
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyA_CockroachRegistry_388127383153',
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || `${PROJECT_ID}.firebaseapp.com`,
-  projectId: PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || `${PROJECT_ID}.appspot.com`,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '388127383153',
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '1:388127383153:web:a1b2c3d4e5f6g7h8i9j0',
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyDx01CZJ95r6bcvk66bJvlN6Qt-bBxI6Sc",
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "cjp1-3a85e.firebaseapp.com",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "cjp1-3a85e",
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "cjp1-3a85e.firebasestorage.app",
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "388127383153",
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:388127383153:web:1f0ae9345bc1a3a89d85d0",
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || "G-3VYLC4BNE9"
 };
 
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);

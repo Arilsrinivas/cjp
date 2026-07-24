@@ -1,6 +1,6 @@
 {
   "projects": {
-    "default": "388127383153"
+    "default": "cjp1-3a85e"
   },
   "auth": {
     "providers": {
@@ -12,7 +12,8 @@
         "authorizedRedirectUris": [
           "localhost",
           "http://localhost:3000",
-          "https://cjp-sand.vercel.app"
+          "https://cjp-sand.vercel.app",
+          "cjp1-3a85e.firebaseapp.com"
         ]
       }
     }
