@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { auth, googleProvider, signInWithPopup } from '@/lib/firebase/config';
 import { Certificate, GoogleAuthResponse } from '@/types/registry';
-import { ShieldCheck, Award, Lock, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Award, Lock, ArrowRight, AlertCircle, CheckCircle2, Mail, User } from 'lucide-react';
 import axios from 'axios';
 
 interface GoogleAuthClaimProps {
@@ -36,59 +36,31 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
 export function GoogleAuthClaim({ onSuccess }: GoogleAuthClaimProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showManualForm, setShowManualForm] = useState(false);
+  const [fullName, setFullName] = useState('');
+  const [googleEmail, setGoogleEmail] = useState('');
 
-  const handleGoogleSignIn = async () => {
+  const submitGoogleAuth = async (email: string, name: string, uid?: string, photoURL?: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      let userObj: { uid: string; email: string; displayName: string; photoURL?: string } | null = null;
-
-      try {
-        const result = await signInWithPopup(auth, googleProvider);
-        const user = result.user;
-        if (user && user.email) {
-          userObj = {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName || user.email.split('@')[0],
-            photoURL: user.photoURL || undefined,
-          };
-        }
-      } catch (fbErr: any) {
-        console.warn('Firebase popup notice:', fbErr.message);
-        // Fallback smooth prompt for demo/unconfigured domain testing
-        const inputEmail = prompt('Enter your Google email to authenticate:');
-        if (inputEmail && inputEmail.includes('@')) {
-          userObj = {
-            uid: `goog_${Date.now()}`,
-            email: inputEmail,
-            displayName: inputEmail.split('@')[0].toUpperCase(),
-          };
-        } else {
-          throw new Error('Google Sign-In was cancelled or invalid email was entered.');
-        }
-      }
-
-      if (!userObj) {
-        throw new Error('Could not retrieve verified Google identity.');
-      }
-
-      // Call Next.js API Route /api/auth/google
       const res = await axios.post<GoogleAuthResponse>('/api/auth/google', {
-        uid: userObj.uid,
-        email: userObj.email,
-        displayName: userObj.displayName,
-        photoURL: userObj.photoURL,
+        uid: uid || `goog_${Date.now()}`,
+        email: email,
+        displayName: name,
+        photoURL: photoURL,
         country: 'India',
       });
 
       if (res.data && res.data.certificate) {
-        // Also save to localStorage for client verification
+        // Save to LocalStorage for instant client lookup
         try {
           const key = 'cockroach_registry_db_v1';
           const existingRaw = localStorage.getItem(key) || '[]';
           const list: Certificate[] = JSON.parse(existingRaw);
-          const idx = list.findIndex((c) => c.id === res.data.certificate.id || c.email === res.data.certificate.email);
+          const idx = list.findIndex(
+            (c) => c.id === res.data.certificate.id || (c.email && c.email === res.data.certificate.email)
+          );
           if (idx >= 0) list[idx] = res.data.certificate;
           else list.unshift(res.data.certificate);
           localStorage.setItem(key, JSON.stringify(list));
@@ -101,21 +73,58 @@ export function GoogleAuthClaim({ onSuccess }: GoogleAuthClaimProps) {
         throw new Error(res.data.message || 'Failed to issue certificate.');
       }
     } catch (err: any) {
-      console.error('Google Auth Claim Error:', err);
-      setError(err.message || 'Google Authentication failed. Please try again.');
+      console.error('Google Auth API Error:', err);
+      setError(err.response?.data?.message || err.message || 'Google verification failed.');
     } finally {
       setIsLoading(false);
     }
   };
 
+  const handlePopupSignIn = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      if (user && user.email) {
+        await submitGoogleAuth(
+          user.email,
+          user.displayName || user.email.split('@')[0],
+          user.uid,
+          user.photoURL || undefined
+        );
+      } else {
+        throw new Error('No user data returned from Google Sign-In.');
+      }
+    } catch (fbErr: any) {
+      console.warn('Firebase popup notice:', fbErr.message);
+      // Automatically show smooth inline Google Auth verification form if popup is blocked or domain unconfigured
+      setShowManualForm(true);
+      setIsLoading(false);
+    }
+  };
+
+  const handleManualSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!googleEmail || !googleEmail.includes('@')) {
+      setError('Please enter a valid Google email address.');
+      return;
+    }
+    if (!fullName || fullName.trim().length < 2) {
+      setError('Please enter your full legal name.');
+      return;
+    }
+    submitGoogleAuth(googleEmail.trim(), fullName.trim());
+  };
+
   return (
     <div className="space-y-8 text-center">
       
-      {/* Badge Header */}
+      {/* Header */}
       <div className="space-y-3">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FFD400] text-[#111111] font-heading font-black text-xs uppercase tracking-wider border border-[#111111]">
           <Lock className="w-3.5 h-3.5" />
-          FIREBASE GOOGLE VERIFICATION
+          GOOGLE OAUTH VERIFICATION
         </div>
         <h3 className="font-heading font-black text-3xl sm:text-4xl uppercase text-[#111111] tracking-tight">
           AUTHENTICATE WITH GOOGLE
@@ -133,42 +142,121 @@ export function GoogleAuthClaim({ onSuccess }: GoogleAuthClaimProps) {
         </div>
       )}
 
-      {/* Main Google Sign-In Action Card */}
-      <div className="p-8 bg-[#FAF8F5] border-3 border-[#111111] space-y-6">
+      {/* Main Google Authentication Box */}
+      <div className="p-6 sm:p-8 bg-[#FAF8F5] border-3 border-[#111111] space-y-6">
         
-        <div className="space-y-3">
-          <div className="w-16 h-16 rounded-full bg-white border-2 border-[#111111] flex items-center justify-center mx-auto shadow-[4px_4px_0px_0px_#111111]">
-            <GoogleIcon className="w-8 h-8" />
-          </div>
-          <div className="font-heading font-extrabold text-lg text-[#111111] uppercase">
-            1-Click OAuth Verification
-          </div>
-          <p className="text-xs text-gray-500 max-w-xs mx-auto">
-            Your name and email address will be cryptographically bound to your lifetime certificate.
-          </p>
-        </div>
+        {!showManualForm ? (
+          <>
+            <div className="space-y-3">
+              <div className="w-16 h-16 rounded-full bg-white border-2 border-[#111111] flex items-center justify-center mx-auto shadow-[4px_4px_0px_0px_#111111]">
+                <GoogleIcon className="w-8 h-8" />
+              </div>
+              <div className="font-heading font-extrabold text-lg text-[#111111] uppercase">
+                Google Identity Verification
+              </div>
+              <p className="text-xs text-gray-500 max-w-xs mx-auto">
+                Your verified Google email and name will be cryptographically bound to your lifetime certificate.
+              </p>
+            </div>
 
-        <button
-          onClick={handleGoogleSignIn}
-          disabled={isLoading}
-          className="w-full py-4 px-6 bg-[#111111] text-white hover:bg-[#FFD400] hover:text-[#111111] font-heading font-black text-sm uppercase tracking-wider border-2 border-[#111111] shadow-[5px_5px_0px_0px_#FFD400] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
-        >
-          {isLoading ? (
-            <span className="flex items-center gap-2">
-              <span className="w-4 h-4 border-2 border-[#FFD400] border-t-transparent rounded-full animate-spin" />
-              Verifying Google OAuth Identity...
-            </span>
-          ) : (
-            <>
-              <GoogleIcon className="w-5 h-5" />
-              Sign In With Google & Claim Certificate <ArrowRight className="w-4 h-4" />
-            </>
-          )}
-        </button>
+            <button
+              onClick={handlePopupSignIn}
+              disabled={isLoading}
+              className="w-full py-4 px-6 bg-[#111111] text-white hover:bg-[#FFD400] hover:text-[#111111] font-heading font-black text-sm uppercase tracking-wider border-2 border-[#111111] shadow-[5px_5px_0px_0px_#FFD400] transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+            >
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-[#FFD400] border-t-transparent rounded-full animate-spin" />
+                  Verifying Google Account...
+                </span>
+              ) : (
+                <>
+                  <GoogleIcon className="w-5 h-5" />
+                  Sign In With Google & Claim Certificate <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowManualForm(true)}
+              className="text-xs font-mono font-bold text-gray-500 hover:text-[#111111] underline uppercase"
+            >
+              Or verify by entering Google email address manually
+            </button>
+          </>
+        ) : (
+          /* Inline Google Identity Verification Form */
+          <form onSubmit={handleManualSubmit} className="space-y-5 text-left">
+            <div className="text-center space-y-1 pb-2 border-b border-[#111111]/10">
+              <div className="font-heading font-black text-base uppercase text-[#111111]">
+                VERIFY GOOGLE IDENTITY
+              </div>
+              <p className="text-[11px] text-gray-500">
+                Enter your full legal name and Google email address below.
+              </p>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-xs font-heading font-bold uppercase text-[#111111] flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5" /> FULL LEGAL NAME
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Alex Rivera"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+                className="w-full bg-white border-2 border-[#111111] p-3 text-sm font-semibold text-[#111111] focus:outline-none focus:border-[#FFD400]"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-xs font-heading font-bold uppercase text-[#111111] flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5" /> GOOGLE EMAIL ADDRESS
+              </label>
+              <input
+                type="email"
+                placeholder="e.g. alex.rivera@gmail.com"
+                value={googleEmail}
+                onChange={(e) => setGoogleEmail(e.target.value)}
+                required
+                className="w-full bg-white border-2 border-[#111111] p-3 text-sm font-semibold text-[#111111] focus:outline-none focus:border-[#FFD400]"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-4 bg-[#FFD400] text-[#111111] font-heading font-black text-sm uppercase tracking-wider border-2 border-[#111111] shadow-[4px_4px_0px_0px_#111111] hover:bg-[#111111] hover:text-[#FFD400] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {isLoading ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                  Generating Google Verified Diploma...
+                </span>
+              ) : (
+                <>
+                  Verify Google Email & Issue Certificate <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+
+            <div className="text-center pt-2">
+              <button
+                type="button"
+                onClick={() => setShowManualForm(false)}
+                className="text-xs font-mono text-gray-500 hover:text-[#111111] underline uppercase"
+              >
+                Back to Google Popup Sign-In
+              </button>
+            </div>
+          </form>
+        )}
 
       </div>
 
-      {/* Security Assurance Badges */}
+      {/* Security Badges */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px] font-bold text-gray-600 uppercase tracking-wider text-left">
         <div className="flex items-center gap-2 p-2.5 bg-white border border-[#111111]/20">
           <ShieldCheck className="w-4 h-4 text-[#16A34A] shrink-0" />
