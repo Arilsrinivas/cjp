@@ -3,7 +3,7 @@
 import { QRCodeSVG } from 'qrcode.react';
 import { Certificate } from '@/types/registry';
 import { formatDate, truncateHash } from '@/lib/utils';
-import { ShieldCheck, Award, Lock, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Award, Lock, Sparkles, CheckCircle2, User } from 'lucide-react';
 
 interface CertificateCardProps {
   certificate: Certificate;
@@ -19,7 +19,7 @@ export function CertificateCard({ certificate, id = 'cockroach-certificate-eleme
       {/* Outer Double Frame Line */}
       <div className="border-2 border-double border-[#FFD400] p-4 sm:p-8 relative">
         
-        {/* Background Guilloche Watermark Icon */}
+        {/* Background Watermark Icon */}
         <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
           <Award className="w-80 h-80 text-[#111111]" />
         </div>
@@ -56,17 +56,29 @@ export function CertificateCard({ certificate, id = 'cockroach-certificate-eleme
             THIS IS TO CERTIFY THAT
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-2">
+            {certificate.photoUrl && (
+              <div className="w-16 h-16 rounded-full border-2 border-[#111111] overflow-hidden mx-auto shadow-[3px_3px_0px_0px_#FFD400]">
+                <img src={certificate.photoUrl} alt={certificate.memberName} className="w-full h-full object-cover" />
+              </div>
+            )}
+
             <h1 className="font-heading font-black text-3xl sm:text-5xl uppercase tracking-tight text-[#111111] yellow-highlight inline-block px-4 py-1">
               {certificate.memberName}
             </h1>
-            <div className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider pt-2">
-              LOCATION: {certificate.country || 'GLOBAL'}
+            
+            <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-semibold text-[#6B7280] uppercase tracking-wider pt-1">
+              {certificate.email && (
+                <span className="bg-[#111111] text-white px-2.5 py-0.5 font-mono text-[11px] uppercase">
+                  GOOGLE VERIFIED: {certificate.email}
+                </span>
+              )}
+              <span>LOCATION: {certificate.country || 'GLOBAL'}</span>
             </div>
           </div>
 
           <p className="text-xs sm:text-sm text-[#111111]/80 max-w-xl mx-auto font-medium leading-relaxed italic">
-            Has successfully verified human sovereignty via mobile OTP authentication and is hereby registered as an unbroken lifetime member of the Cockroach Movement.
+            Has successfully verified human sovereignty via Google OAuth authentication and is hereby registered as an unbroken lifetime member of the Cockroach Movement.
           </p>
         </div>
 

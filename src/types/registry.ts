@@ -1,13 +1,15 @@
 export interface Member {
   id: string;
   fullName: string;
-  phoneNumber: string;
-  countryCode: string;
+  email?: string;
+  phoneNumber?: string;
+  countryCode?: string;
   country: string;
   certificateNumber: string;
   issueDate: string;
   hash: string;
   verificationUrl: string;
+  photoUrl?: string;
   status: 'ACTIVE' | 'REVOKED' | 'SUSPENDED';
 }
 
@@ -15,14 +17,31 @@ export interface Certificate {
   id: string;
   certificateNumber: string;
   memberName: string;
-  phoneNumber: string;
+  email?: string;
+  phoneNumber?: string;
   country: string;
   issueDate: string;
   hash: string;
   verificationUrl: string;
   qrData: string;
   signature: string;
+  photoUrl?: string;
   status: 'VALID' | 'INVALID' | 'EXPIRED';
+}
+
+export interface GoogleAuthPayload {
+  uid: string;
+  email: string;
+  displayName: string;
+  photoURL?: string;
+  country?: string;
+}
+
+export interface GoogleAuthResponse {
+  success: boolean;
+  message: string;
+  certificate: Certificate;
+  isExisting: boolean;
 }
 
 export interface SendOtpPayload {

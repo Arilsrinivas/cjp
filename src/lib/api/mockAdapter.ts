@@ -9,6 +9,7 @@ const INITIAL_CERTIFICATES: Certificate[] = [
     id: 'CRC-2026-89421',
     certificateNumber: 'CRC-2026-89421',
     memberName: 'Alex Rivera',
+    email: 'alex.rivera@example.com',
     phoneNumber: '+1 555-0198',
     country: 'United States',
     issueDate: '2026-03-15T10:30:00Z',
@@ -22,6 +23,7 @@ const INITIAL_CERTIFICATES: Certificate[] = [
     id: 'CRC-2026-00001',
     certificateNumber: 'CRC-2026-00001',
     memberName: 'Elena Rostova',
+    email: 'elena.rostova@example.com',
     phoneNumber: '+44 7700 900077',
     country: 'United Kingdom',
     issueDate: '2026-01-01T00:00:00Z',
@@ -50,7 +52,7 @@ function getStoredCertificates(): Certificate[] {
 function saveCertificate(cert: Certificate) {
   if (typeof window === 'undefined') return;
   const list = getStoredCertificates();
-  const index = list.findIndex(c => c.id === cert.id || c.phoneNumber === cert.phoneNumber);
+  const index = list.findIndex(c => c.id === cert.id || (c.email && c.email === cert.email));
   if (index >= 0) {
     list[index] = cert;
   } else {
@@ -90,7 +92,7 @@ export const mockApiServices = {
     const cleanInputPhone = payload.phoneNumber.replace(/\D/g, '');
     
     const existing = list.find((c) => {
-      const cleanCertPhone = c.phoneNumber.replace(/\D/g, '');
+      const cleanCertPhone = (c.phoneNumber || '').replace(/\D/g, '');
       return cleanCertPhone && cleanCertPhone === cleanInputPhone;
     });
 
@@ -100,7 +102,7 @@ export const mockApiServices = {
     if (existing) {
       return {
         success: true,
-        message: 'Mobile number recognized. Existing lifetime certificate retrieved.',
+        message: 'Identity recognized. Existing lifetime certificate retrieved.',
         sessionId,
         existingCertificateId: existing.id,
       };
@@ -108,7 +110,7 @@ export const mockApiServices = {
 
     return {
       success: true,
-      message: 'OTP code sent successfully to your mobile phone number.',
+      message: 'Authentication session initialized.',
       sessionId,
     };
   },
@@ -126,14 +128,14 @@ export const mockApiServices = {
     const cleanInputPhone = payload.phoneNumber.replace(/\D/g, '');
 
     const existing = list.find((c) => {
-      const cleanCertPhone = c.phoneNumber.replace(/\D/g, '');
+      const cleanCertPhone = (c.phoneNumber || '').replace(/\D/g, '');
       return cleanCertPhone && cleanCertPhone === cleanInputPhone;
     });
 
     if (existing) {
       return {
         success: true,
-        message: 'OTP verified. Existing lifetime certificate retrieved.',
+        message: 'Verification complete. Existing lifetime certificate retrieved.',
         certificate: existing,
         isExisting: true,
       };
@@ -161,7 +163,7 @@ export const mockApiServices = {
 
     return {
       success: true,
-      message: 'OTP verified! Lifetime certificate issued successfully.',
+      message: 'Verified! Lifetime certificate issued successfully.',
       certificate: newCert,
       isExisting: false,
     };
@@ -170,8 +172,14 @@ export const mockApiServices = {
   getCertificateById: async (certificateId: string): Promise<Certificate | null> => {
     await new Promise((r) => setTimeout(r, 400));
     const list = getStoredCertificates();
-    const query = certificateId.trim().toUpperCase();
-    const found = list.find((c) => c.id.toUpperCase() === query || c.certificateNumber.toUpperCase() === query || c.hash.toLowerCase() === certificateId.toLowerCase());
+    const query = certificateId.trim().toLowerCase();
+    const found = list.find(
+      (c) =>
+        c.id.toLowerCase() === query ||
+        c.certificateNumber.toLowerCase() === query ||
+        c.hash.toLowerCase() === query ||
+        (c.email && c.email.toLowerCase() === query)
+    );
     return found || null;
   },
 
