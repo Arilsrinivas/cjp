@@ -2,35 +2,42 @@ import { NewsArticle, GalleryImage, HeroImage, TimelineEvent } from '@/types/reg
 
 const NEWS_API_KEY = process.env.NEXT_PUBLIC_NEWS_API_KEY || 'bd80817094454311a0e40fbe6d330ec2';
 
-// Curated high-resolution fallback dataset for Indian Youth Protests & Cockroach Movement
+// Bulletproof high-resolution CDN images for Indian Youth Protests & Cockroach Movement
 const FALLBACK_HERO_IMAGES: HeroImage[] = [
   {
     id: 'hero-in-1',
-    url: 'https://images.unsplash.com/photo-1596785236245-4b5ce647a8e6?q=80&w=1920&auto=format&fit=crop',
+    url: 'https://images.pexels.com/photos/2833037/pexels-photo-2833037.jpeg?auto=compress&cs=tinysrgb&w=1920',
     title: 'THE UNBREAKABLE INDIAN YOUTH PROTEST',
-    subtitle: 'Over 200,000 Students & Workers Gather Across 28 States Demanding Reform',
+    subtitle: 'Over 250,000 Students & Workers Gather Across 28 States Demanding Sovereignty',
     articleId: 'protest-101',
   },
   {
     id: 'hero-in-2',
-    url: 'https://images.unsplash.com/photo-1532375810709-75b1da00537c?q=80&w=1920&auto=format&fit=crop',
+    url: 'https://images.pexels.com/photos/1709003/pexels-photo-1709003.jpeg?auto=compress&cs=tinysrgb&w=1920',
     title: 'NEW DELHI MARCH REACHES PARLIAMENT STREET',
     subtitle: 'Peaceful Demonstration Calls For Immutable Sovereignty & Anti-Surveillance Safeguards',
     articleId: 'protest-102',
   },
   {
     id: 'hero-in-3',
-    url: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?q=80&w=1920&auto=format&fit=crop',
+    url: 'https://images.pexels.com/photos/264507/pexels-photo-264507.jpeg?auto=compress&cs=tinysrgb&w=1920',
     title: 'BENGALURU TECH WORKERS JOIN COCKROACH MOVEMENT',
     subtitle: 'Cryptographic Hashing Nodes Deployed Nationwide To Audit Member Registry',
     articleId: 'protest-103',
+  },
+  {
+    id: 'hero-in-4',
+    url: 'https://images.pexels.com/photos/1464223/pexels-photo-1464223.jpeg?auto=compress&cs=tinysrgb&w=1920',
+    title: 'MUMBAI MARINE DRIVE PEACEFUL VIGIL',
+    subtitle: 'Citizens Gather at Dusk Holding Illuminated Digital Diplomas',
+    articleId: 'protest-104',
   },
 ];
 
 const FALLBACK_GALLERY_IMAGES: GalleryImage[] = [
   {
     id: 'gal-1',
-    url: 'https://images.unsplash.com/photo-1596785236245-4b5ce647a8e6?q=80&w=1200&auto=format&fit=crop',
+    url: 'https://images.pexels.com/photos/2833037/pexels-photo-2833037.jpeg?auto=compress&cs=tinysrgb&w=1200',
     title: 'Jantar Mantar Peace Rally',
     caption: 'Student delegates from Delhi University leading peaceful slogans at historic Jantar Mantar site.',
     source: 'Indian Express Photo Service',
@@ -38,7 +45,7 @@ const FALLBACK_GALLERY_IMAGES: GalleryImage[] = [
   },
   {
     id: 'gal-2',
-    url: 'https://images.unsplash.com/photo-1532375810709-75b1da00537c?q=80&w=1200&auto=format&fit=crop',
+    url: 'https://images.pexels.com/photos/1709003/pexels-photo-1709003.jpeg?auto=compress&cs=tinysrgb&w=1200',
     title: 'Marine Drive Freedom March',
     caption: 'Mumbai youth coalition assembling along the coastline in solidarity with the Cockroach Movement.',
     source: 'Times of India Press',
@@ -46,7 +53,7 @@ const FALLBACK_GALLERY_IMAGES: GalleryImage[] = [
   },
   {
     id: 'gal-3',
-    url: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?q=80&w=1200&auto=format&fit=crop',
+    url: 'https://images.pexels.com/photos/264507/pexels-photo-264507.jpeg?auto=compress&cs=tinysrgb&w=1200',
     title: 'Electronic City Tech Resistance',
     caption: 'Engineers demonstrating against surveillance and data harvesting in South Bengaluru.',
     source: 'Deccan Herald',
@@ -54,7 +61,7 @@ const FALLBACK_GALLERY_IMAGES: GalleryImage[] = [
   },
   {
     id: 'gal-4',
-    url: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=1200&auto=format&fit=crop',
+    url: 'https://images.pexels.com/photos/1464223/pexels-photo-1464223.jpeg?auto=compress&cs=tinysrgb&w=1200',
     title: 'Kolkata College Square Vigil',
     caption: 'Candlelight assembly honoring endurance and human digital sovereignty.',
     source: 'Telegraph India',
@@ -68,7 +75,7 @@ const FALLBACK_NEWS_ARTICLES: NewsArticle[] = [
     headline: 'Historic Indian Youth Protests Surge Across 28 States Demanding Sovereignty & Reform',
     summary: 'Over 250,000 students, engineers, and workers have gathered in major Indian metropolitan cities to demand unalterable identity rights, zero-password authentication, and an end to corporate data harvesting.',
     category: 'INDIAN PROTESTS',
-    imageUrl: 'https://images.unsplash.com/photo-1596785236245-4b5ce647a8e6?q=80&w=1200&auto=format&fit=crop',
+    imageUrl: 'https://images.pexels.com/photos/2833037/pexels-photo-2833037.jpeg?auto=compress&cs=tinysrgb&w=1200',
     source: 'NDTV Special Coverage',
     author: 'Priya Sharma & Ananya Das',
     url: 'https://news.google.com/search?q=India+youth+protest',
@@ -87,9 +94,9 @@ Security forces report that demonstrations in New Delhi, Mumbai, Bengaluru, Chen
   {
     id: 'protest-102',
     headline: 'New Delhi Rally Reaches Parliament Street as Student Leaders Present Charter of Rights',
-    summary: 'Crowds stretching from Connaught Place to Parliament Street chant slogans for digital privacy while verifying lifetime certificates via mobile OTP on public ledger nodes.',
+    summary: 'Crowds stretching from Connaught Place to Parliament Street chant slogans for digital privacy while verifying lifetime certificates via Google Auth on public ledger nodes.',
     category: 'DELHI DISPATCH',
-    imageUrl: 'https://images.unsplash.com/photo-1532375810709-75b1da00537c?q=80&w=800&auto=format&fit=crop',
+    imageUrl: 'https://images.pexels.com/photos/1709003/pexels-photo-1709003.jpeg?auto=compress&cs=tinysrgb&w=800',
     source: 'The Hindu',
     author: 'Rajesh Kumar',
     url: 'https://news.google.com/search?q=Delhi+protest+rally',
@@ -108,7 +115,7 @@ Parliamentary representatives confirmed receipt of the Movement Charter, which r
     headline: 'Bengaluru Tech Workers Deploy 50 Public Nodes to Audit Protest Member Registrations',
     summary: 'Software architects in Electronic City set up open-source verification nodes to ensure zero-Sybil compliance and instant OTP hash verification.',
     category: 'TECH RESISTANCE',
-    imageUrl: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?q=80&w=800&auto=format&fit=crop',
+    imageUrl: 'https://images.pexels.com/photos/264507/pexels-photo-264507.jpeg?auto=compress&cs=tinysrgb&w=800',
     source: 'Deccan Herald',
     author: 'Kavita Menon',
     url: 'https://news.google.com/search?q=Bengaluru+tech+protest',
@@ -127,7 +134,7 @@ Over 50 decentralized audit nodes were deployed across Bengaluru this morning, a
     headline: 'Mumbai Marine Drive Gathering Enters Third Day With Candlelight Unity Vigil',
     summary: 'Citizens assemble at dusk along Marine Drive, holding illuminated certificate QR codes to symbolize human endurance.',
     category: 'MUMBAI DISPATCH',
-    imageUrl: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800&auto=format&fit=crop',
+    imageUrl: 'https://images.pexels.com/photos/1464223/pexels-photo-1464223.jpeg?auto=compress&cs=tinysrgb&w=800',
     source: 'Indian Express Wire',
     author: 'Siddharth Joshi',
     url: 'https://news.google.com/search?q=Mumbai+protest',
@@ -139,23 +146,6 @@ Over 50 decentralized audit nodes were deployed across Bengaluru this morning, a
 
 Holding mobile screens displaying their verified Cockroach Membership QR codes, attendees reaffirmed their pledge to maintain digital independence and mutual support.`,
   },
-  {
-    id: 'protest-105',
-    headline: 'Human Rights Organizations Issue Statement Supporting Indian Youth Protest',
-    summary: 'International monitors praise the peaceful nature of the demonstrations and applaud open cryptographic verification mechanisms.',
-    category: 'GLOBAL REACTION',
-    imageUrl: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=800&auto=format&fit=crop',
-    source: 'Amnesty Press Release',
-    author: 'Global Bureau',
-    url: 'https://news.google.com/search?q=Human+rights+India+protest',
-    publishedAt: '2026-07-23T17:30:00Z',
-    publishedTime: '05:30 PM IST',
-    isFeatured: false,
-    isTrending: false,
-    content: `International human rights observers issued a commendation today praising the non-violent discipline of the Indian youth protest movement.
-
-The report highlighted the innovative use of mobile OTP verification to prevent identity fraud while upholding individual anonymity.`,
-  },
 ];
 
 const FALLBACK_TIMELINE_EVENTS: TimelineEvent[] = [
@@ -165,7 +155,7 @@ const FALLBACK_TIMELINE_EVENTS: TimelineEvent[] = [
     headline: 'All-India Student Assembly Issues Joint Declaration',
     description: 'Delegates representing 28 Indian states ratify the 2026 Movement Charter for Cryptographic Sovereignty in New Delhi.',
     category: 'DECLARATION',
-    imageUrl: 'https://images.unsplash.com/photo-1596785236245-4b5ce647a8e6?q=80&w=800&auto=format&fit=crop',
+    imageUrl: 'https://images.pexels.com/photos/2833037/pexels-photo-2833037.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
   {
     id: 'tl-2',
@@ -173,22 +163,7 @@ const FALLBACK_TIMELINE_EVENTS: TimelineEvent[] = [
     headline: 'Parliament Street Peaceful March Commences',
     description: 'Over 100,000 demonstrators fill Central Delhi carrying QR-verified lifetime diplomas.',
     category: 'DELHI MARCH',
-    imageUrl: 'https://images.unsplash.com/photo-1532375810709-75b1da00537c?q=80&w=800&auto=format&fit=crop',
-  },
-  {
-    id: 'tl-3',
-    date: '24 JULY 2026 - 06:15 AM',
-    headline: '50 Decentralized Audit Nodes Launched in Bengaluru',
-    description: 'Software engineers deploy open ED25519 verification nodes to process live registration hashes.',
-    category: 'TECH LAUNCH',
-  },
-  {
-    id: 'tl-4',
-    date: '23 JULY 2026 - 09:00 PM',
-    headline: 'Mumbai Marine Drive Unity Vigil Held',
-    description: 'Citizens hold illuminated certificate QR codes along the coastline in solidarity with national protest goals.',
-    category: 'MUMBAI VIGIL',
-    imageUrl: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=800&auto=format&fit=crop',
+    imageUrl: 'https://images.pexels.com/photos/1709003/pexels-photo-1709003.jpeg?auto=compress&cs=tinysrgb&w=800',
   },
 ];
 
@@ -209,7 +184,9 @@ export const newsServices = {
             headline: item.title || 'Indian Protest & Youth Movement Update',
             summary: item.description || item.content || 'Latest dispatch from Indian peaceful protest rallies and sovereign identity developments.',
             category: idx === 0 ? 'FEATURED PROTEST DISPATCH' : idx < 3 ? 'TRENDING PROTEST' : 'INDIAN NEWS',
-            imageUrl: item.urlToImage || FALLBACK_NEWS_ARTICLES[idx % FALLBACK_NEWS_ARTICLES.length].imageUrl,
+            imageUrl: item.urlToImage && item.urlToImage.startsWith('http')
+              ? item.urlToImage
+              : FALLBACK_NEWS_ARTICLES[idx % FALLBACK_NEWS_ARTICLES.length].imageUrl,
             source: item.source?.name || 'Indian News Network',
             author: item.author || 'Movement Bureau',
             url: item.url || 'https://news.google.com/search?q=India+youth+protest',
@@ -238,41 +215,10 @@ export const newsServices = {
   },
 
   fetchGalleryImages: async (): Promise<GalleryImage[]> => {
-    try {
-      const articles = await newsServices.fetchNews();
-      const withImages = articles.filter((a) => a.imageUrl && a.imageUrl.startsWith('http'));
-      if (withImages.length >= 3) {
-        return withImages.map((art, idx) => ({
-          id: `gal-protest-${idx}`,
-          url: art.imageUrl!,
-          title: art.headline,
-          caption: art.summary,
-          source: art.source,
-          publishedAt: art.publishedAt,
-        }));
-      }
-    } catch (e) {
-      console.warn('Gallery protest images fallback:', e);
-    }
     return FALLBACK_GALLERY_IMAGES;
   },
 
   fetchHeroImages: async (): Promise<HeroImage[]> => {
-    try {
-      const articles = await newsServices.fetchNews();
-      const withImages = articles.filter((a) => a.imageUrl && a.imageUrl.startsWith('http'));
-      if (withImages.length >= 2) {
-        return withImages.slice(0, 4).map((art, idx) => ({
-          id: `hero-protest-${idx}`,
-          url: art.imageUrl!,
-          title: art.headline.toUpperCase(),
-          subtitle: art.summary,
-          articleId: art.id,
-        }));
-      }
-    } catch (e) {
-      console.warn('Hero protest images fallback:', e);
-    }
     return FALLBACK_HERO_IMAGES;
   },
 

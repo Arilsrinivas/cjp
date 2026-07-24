@@ -3,56 +3,69 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, Award, ArrowRight, ChevronLeft, ChevronRight, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Award, ArrowRight, ChevronLeft, ChevronRight, CheckCircle2 } from 'lucide-react';
 import { useHeroImages, useRegistryStatistics } from '@/lib/hooks/useRegistryApi';
+
+const DEFAULT_HEROES = [
+  {
+    id: 'hero-default-1',
+    url: 'https://images.pexels.com/photos/2833037/pexels-photo-2833037.jpeg?auto=compress&cs=tinysrgb&w=1920',
+    title: 'THE UNBREAKABLE INDIAN YOUTH PROTEST',
+    subtitle: 'Over 250,000 Students & Workers Gather Across 28 States Demanding Sovereignty',
+    articleId: 'protest-101',
+  },
+  {
+    id: 'hero-default-2',
+    url: 'https://images.pexels.com/photos/1709003/pexels-photo-1709003.jpeg?auto=compress&cs=tinysrgb&w=1920',
+    title: 'NEW DELHI MARCH REACHES PARLIAMENT STREET',
+    subtitle: 'Peaceful Demonstration Calls For Immutable Sovereignty & Anti-Surveillance Safeguards',
+    articleId: 'protest-102',
+  },
+];
 
 export function DynamicHero() {
   const { data: heroImages } = useHeroImages();
   const { data: stats } = useRegistryStatistics();
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const imagesToDisplay = heroImages && heroImages.length > 0 ? heroImages : DEFAULT_HEROES;
+
   // Auto-rotate background photos every 8 seconds
   useEffect(() => {
-    if (!heroImages || heroImages.length === 0) return;
+    if (imagesToDisplay.length === 0) return;
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % heroImages.length);
+      setCurrentIndex((prev) => (prev + 1) % imagesToDisplay.length);
     }, 8000);
     return () => clearInterval(interval);
-  }, [heroImages]);
+  }, [imagesToDisplay]);
 
-  const currentHero = heroImages && heroImages.length > 0 ? heroImages[currentIndex] : null;
+  const currentHero = imagesToDisplay[currentIndex] || DEFAULT_HEROES[0];
 
   const handlePrev = () => {
-    if (!heroImages) return;
-    setCurrentIndex((prev) => (prev - 1 + heroImages.length) % heroImages.length);
+    setCurrentIndex((prev) => (prev - 1 + imagesToDisplay.length) % imagesToDisplay.length);
   };
 
   const handleNext = () => {
-    if (!heroImages) return;
-    setCurrentIndex((prev) => (prev + 1) % heroImages.length);
+    setCurrentIndex((prev) => (prev + 1) % imagesToDisplay.length);
   };
 
   return (
     <section className="relative min-h-[92vh] pt-28 pb-16 flex flex-col justify-between overflow-hidden bg-[#111111] text-[#F8F7F3] border-b-4 border-[#FFD400]">
       
-      {/* High-Visibility Auto-Rotating Background Images */}
+      {/* High-Visibility Background Image with Smooth Crossfade */}
       <AnimatePresence mode="wait">
-        {currentHero ? (
-          <motion.div
-            key={currentHero.id}
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 0.85, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 1.2, ease: 'easeOut' }}
-            className="absolute inset-0 bg-cover bg-center pointer-events-none"
-            style={{ backgroundImage: `url(${currentHero.url})` }}
-          />
-        ) : (
-          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#FFD400_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
-        )}
+        <motion.div
+          key={currentHero.id || currentIndex}
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 0.85, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 1.2, ease: 'easeOut' }}
+          className="absolute inset-0 bg-cover bg-center pointer-events-none"
+          style={{ backgroundImage: `url("${currentHero.url}")` }}
+        />
       </AnimatePresence>
 
-      {/* Light Gradient Overlay to Ensure Photos Pop While Text Stays Crisp */}
+      {/* Light Vignette Overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-black/45 to-black/30 pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto py-8 relative z-10">
@@ -98,10 +111,10 @@ export function DynamicHero() {
               </p>
 
               {/* Slide Counter & Manual Controls */}
-              {heroImages && heroImages.length > 0 && (
+              {imagesToDisplay.length > 0 && (
                 <div className="pt-4 flex items-center justify-between border-t border-white/20 text-xs font-mono">
                   <div className="flex items-center gap-3 text-gray-300">
-                    <span className="font-bold text-[#FFD400]">PHOTO {currentIndex + 1} / {heroImages.length}</span>
+                    <span className="font-bold text-[#FFD400]">PROTEST PHOTO {currentIndex + 1} / {imagesToDisplay.length}</span>
                     <span className="hidden sm:inline text-gray-400">• Auto-rotates every 8s</span>
                   </div>
 
@@ -167,11 +180,11 @@ export function DynamicHero() {
             >
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#FFD400]" />
-                <span>Instant Mobile OTP</span>
+                <span>Google OAuth Verification</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#FFD400]" />
-                <span>1 Certificate Per Mobile Number</span>
+                <span>1 Certificate Per Identity</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#FFD400]" />
