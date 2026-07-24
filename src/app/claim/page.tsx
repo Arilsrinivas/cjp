@@ -6,14 +6,15 @@ import { ClaimForm, ClaimFormData } from '@/components/claim/ClaimForm';
 import { OtpInput } from '@/components/claim/OtpInput';
 import { CinematicReveal } from '@/components/claim/CinematicReveal';
 import { useSendOtpMutation, useVerifyOtpMutation } from '@/lib/hooks/useRegistryApi';
-import { Certificate, SendOtpResponse, VerifyOtpResponse } from '@/types/registry';
-import { ShieldCheck, Award, Smartphone, CheckCircle2 } from 'lucide-react';
+import { Certificate } from '@/types/registry';
 
 export default function ClaimPage() {
   const [step, setStep] = useState<'FORM' | 'OTP' | 'REVEAL'>('FORM');
   const [formData, setFormData] = useState<ClaimFormData | null>(null);
   const [sessionId, setSessionId] = useState<string>('');
   const [sessionToken, setSessionToken] = useState<string>('');
+  const [otpHint, setOtpHint] = useState<string | undefined>(undefined);
+  const [providerName, setProviderName] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [certificateResult, setCertificateResult] = useState<{
     certificate: Certificate;
@@ -38,6 +39,8 @@ export default function ClaimPage() {
       if (res.sessionId || res.sessionToken) {
         setSessionId(res.sessionId || '');
         setSessionToken(res.sessionToken || '');
+        setOtpHint(res.otpCodeHint);
+        setProviderName(res.provider || 'Gateway');
         setStep('OTP');
       } else {
         setErrorMessage(res.message || 'Failed to send OTP code.');
@@ -155,6 +158,8 @@ export default function ClaimPage() {
                 onResend={handleResendOtp}
                 isLoading={verifyOtpMutation.isPending}
                 error={errorMessage}
+                otpHint={otpHint}
+                provider={providerName}
               />
             </motion.div>
           )}

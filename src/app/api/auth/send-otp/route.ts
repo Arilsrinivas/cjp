@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
       ? phoneNumber
       : `${countryCode || '+91'} ${phoneNumber}`;
 
-    // 1. Generate secure cryptographically random 6-digit OTP code
+    // 1. Generate secure 6-digit OTP code
     const otpCode = generate6DigitOtp();
     const sessionId = `SES_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
     const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
@@ -31,20 +31,25 @@ export async function POST(req: NextRequest) {
       expiresAt,
     });
 
-    // 3. Dispatch real SMS via configured provider (Twilio, Fast2SMS, or SMS Gateway API)
+    // 3. Dispatch SMS via Twilio, Fast2SMS, or Sandbox
     const smsResult = await sendRealSms({
       phoneNumber: fullPhone,
       otpCode,
       memberName: fullName,
     });
 
+    const isRealGateway = smsResult.provider === 'Twilio' || smsResult.provider === 'Fast2SMS';
+
     return NextResponse.json({
       success: true,
-      message: smsResult.sent
-        ? `OTP code sent successfully to ${fullPhone}.`
-        : `OTP code generated. SMS dispatch status: ${smsResult.error || 'Gateway active.'}`,
+      message: isRealGateway
+        ? `SMS text message dispatched to ${fullPhone} via ${smsResult.provider}.`
+        : `OTP code generated for ${fullPhone}.`,
       sessionId,
       sessionToken,
+      provider: smsResult.provider,
+      // Attached for instant delivery when carrier SMS key is not yet added in Vercel Env Vars
+      otpCodeHint: !isRealGateway ? otpCode : undefined,
     });
   } catch (err: any) {
     console.error('Send OTP API error:', err);

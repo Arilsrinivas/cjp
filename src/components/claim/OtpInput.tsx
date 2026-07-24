@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Lock, RefreshCw, ArrowRight, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Lock, RefreshCw, ArrowRight, AlertCircle, ShieldCheck, Smartphone, Info } from 'lucide-react';
 
 interface OtpInputProps {
   phoneNumber: string;
@@ -10,9 +10,19 @@ interface OtpInputProps {
   onResend: () => void;
   isLoading: boolean;
   error?: string | null;
+  otpHint?: string;
+  provider?: string;
 }
 
-export function OtpInput({ phoneNumber, onVerify, onResend, isLoading, error }: OtpInputProps) {
+export function OtpInput({
+  phoneNumber,
+  onVerify,
+  onResend,
+  isLoading,
+  error,
+  otpHint,
+  provider,
+}: OtpInputProps) {
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(''));
   const [timer, setTimer] = useState(60);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -37,12 +47,12 @@ export function OtpInput({ phoneNumber, onVerify, onResend, isLoading, error }: 
     newOtp[index] = value.substring(value.length - 1);
     setOtp(newOtp);
 
-    // Auto-advance focus to next digit box
+    // Auto-advance focus
     if (value && index < 5 && inputRefs.current[index + 1]) {
       inputRefs.current[index + 1]?.focus();
     }
 
-    // Auto-trigger verification when 6 digits are entered
+    // Auto-trigger verification when 6 digits are filled
     if (newOtp.every((digit) => digit !== '')) {
       onVerify(newOtp.join(''));
     }
@@ -71,6 +81,8 @@ export function OtpInput({ phoneNumber, onVerify, onResend, isLoading, error }: 
     }
   };
 
+  const isRealSmsGateway = provider === 'Twilio' || provider === 'Fast2SMS';
+
   return (
     <div className="space-y-6">
       
@@ -84,8 +96,28 @@ export function OtpInput({ phoneNumber, onVerify, onResend, isLoading, error }: 
           ENTER 6-DIGIT OTP CODE
         </h3>
         <p className="text-xs text-[#6B7280]">
-          Sent via SMS to <span className="font-bold text-[#111111]">{phoneNumber}</span>. Code is valid for 10 minutes.
+          Sent to <span className="font-bold text-[#111111]">{phoneNumber}</span>. Code is valid for 10 minutes.
         </p>
+
+        {/* Carrier SMS vs Sandbox Gateway Banner */}
+        <div className="pt-2">
+          {isRealSmsGateway ? (
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#16A34A]/10 border border-[#16A34A] text-[#16A34A] text-xs font-bold">
+              <Smartphone className="w-4 h-4" />
+              <span>Carrier SMS dispatched via {provider}! Check your phone.</span>
+            </div>
+          ) : otpHint ? (
+            <div className="p-3 bg-[#FFD400]/20 border-2 border-[#111111] text-xs font-semibold text-[#111111] space-y-1">
+              <div className="font-bold flex items-center justify-center gap-1.5 text-sm">
+                <Info className="w-4 h-4 text-[#111111]" />
+                Your OTP Code is: <span className="font-heading font-black text-base bg-[#FFD400] px-2 py-0.5 border border-[#111111]">{otpHint}</span>
+              </div>
+              <p className="text-[10px] text-gray-600 font-mono">
+                (To receive SMS directly on physical mobile devices via carrier text, add TWILIO_ACCOUNT_SID or FAST2SMS_API_KEY to your Vercel Environment Variables).
+              </p>
+            </div>
+          ) : null}
+        </div>
       </div>
 
       {/* Error Banner */}
