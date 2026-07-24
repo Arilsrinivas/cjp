@@ -2,6 +2,7 @@ import axios from 'axios';
 import { API_ENDPOINTS } from './endpoints';
 import { mockApiServices } from './mockAdapter';
 import { newsServices } from './newsAdapter';
+import { getCertificateFromFirestore } from '@/lib/firebase/services';
 import { SendOtpPayload, VerifyOtpPayload } from '@/types/registry';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || '';
@@ -20,7 +21,6 @@ export const registryApi = {
       const res = await apiClient.post('/api/auth/send-otp', payload);
       return res.data;
     } catch (err: any) {
-      // Fallback to mock adapter if server environment unavailable
       if (err.response?.data) return err.response.data;
       return mockApiServices.sendOtp(payload);
     }
@@ -48,6 +48,13 @@ export const registryApi = {
   getCertificate: async (certificateId?: string) => {
     if (certificateId) {
       try {
+        const firestoreCert = await getCertificateFromFirestore(certificateId);
+        if (firestoreCert) return firestoreCert;
+      } catch (e) {
+        console.warn('Firestore lookup notice:', e);
+      }
+
+      try {
         const res = await apiClient.get(API_ENDPOINTS.VERIFY_CERTIFICATE(certificateId));
         return res.data;
       } catch {
@@ -71,7 +78,6 @@ export const registryApi = {
     }
   },
 
-  // Live Protest News & Imagery REST Handlers
   getNews: async () => {
     try {
       const res = await apiClient.get(API_ENDPOINTS.NEWS);

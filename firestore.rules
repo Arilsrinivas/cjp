@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Certificates collection: public read, write for authenticated users
+    match /certificates/{certificateId} {
+      allow read: if true;
+      allow create, update: if request.auth != null;
+      allow delete: if false;
+    }
+    
+    // Members collection: authenticated read/write for owner
+    match /members/{memberId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Default deny for all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "projects": {
+    "default": "388127383153"
+  },
+  "auth": {
+    "providers": {
+      "emailPassword": true,
+      "phone": true,
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Cockroach Membership Registry",
+        "supportEmail": "support@cockroach.org",
+        "authorizedRedirectUris": [
+          "localhost",
+          "http://localhost:3000",
+          "https://cjp-sand.vercel.app"
+        ]
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}
