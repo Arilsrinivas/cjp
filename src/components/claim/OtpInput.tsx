@@ -2,22 +2,22 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, RefreshCw, Lock, ArrowRight } from 'lucide-react';
+import { ShieldCheck, RefreshCw, Lock, ArrowRight, Zap, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface OtpInputProps {
   phoneNumber: string;
   onVerify: (otp: string) => void;
   onResend: () => void;
   isLoading: boolean;
+  error?: string | null;
 }
 
-export function OtpInput({ phoneNumber, onVerify, onResend, isLoading }: OtpInputProps) {
+export function OtpInput({ phoneNumber, onVerify, onResend, isLoading, error }: OtpInputProps) {
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(''));
   const [timer, setTimer] = useState(60);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
-    // Focus first input box on mount
     if (inputRefs.current[0]) {
       inputRefs.current[0].focus();
     }
@@ -31,13 +31,13 @@ export function OtpInput({ phoneNumber, onVerify, onResend, isLoading }: OtpInpu
   }, [timer]);
 
   const handleChange = (value: string, index: number) => {
-    if (isNaN(Number(value))) return;
+    if (value && isNaN(Number(value))) return;
 
     const newOtp = [...otp];
     newOtp[index] = value.substring(value.length - 1);
     setOtp(newOtp);
 
-    // Auto focus next box
+    // Auto focus next input
     if (value && index < 5 && inputRefs.current[index + 1]) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -60,13 +60,14 @@ export function OtpInput({ phoneNumber, onVerify, onResend, isLoading }: OtpInpu
     if (/^\d{6}$/.test(pastedData)) {
       const digits = pastedData.split('');
       setOtp(digits);
-      digits.forEach((digit, i) => {
-        if (inputRefs.current[i]) {
-          inputRefs.current[i]!.value = digit;
-        }
-      });
       onVerify(pastedData);
     }
+  };
+
+  const handleAutoFillDemo = () => {
+    const demoDigits = ['1', '2', '3', '4', '5', '6'];
+    setOtp(demoDigits);
+    onVerify('123456');
   };
 
   const handleResendClick = () => {
@@ -81,7 +82,7 @@ export function OtpInput({ phoneNumber, onVerify, onResend, isLoading }: OtpInpu
       
       {/* Header Info */}
       <div className="text-center space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FFD400] text-[#111111] font-heading font-black text-xs uppercase tracking-wider">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FFD400] text-[#111111] font-heading font-black text-xs uppercase tracking-wider border border-[#111111]">
           <Lock className="w-3.5 h-3.5" />
           VERIFICATION CODE SENT
         </div>
@@ -89,10 +90,29 @@ export function OtpInput({ phoneNumber, onVerify, onResend, isLoading }: OtpInpu
           ENTER 6-DIGIT OTP
         </h3>
         <p className="text-xs text-[#6B7280]">
-          Sent to <span className="font-bold text-[#111111]">{phoneNumber}</span>. <br />
-          <span className="text-[11px] text-gray-500 font-mono">(Demo Code: 123456)</span>
+          Sent to <span className="font-bold text-[#111111]">{phoneNumber}</span>
         </p>
+
+        {/* Quick Demo Fill Shortcut Button */}
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={handleAutoFillDemo}
+            className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#111111] text-[#FFD400] font-heading font-bold text-xs uppercase tracking-wider hover:bg-[#FFD400] hover:text-[#111111] transition-colors border border-[#111111] shadow-sm"
+          >
+            <Zap className="w-3.5 h-3.5 text-[#FFD400] animate-pulse" />
+            Auto-Fill Demo Code (123456)
+          </button>
+        </div>
       </div>
+
+      {/* Error Banner if any */}
+      {error && (
+        <div className="p-3 bg-[#DC2626]/10 border-2 border-[#DC2626] text-[#DC2626] text-xs font-bold flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
 
       {/* 6 OTP Input Boxes */}
       <div className="flex justify-center items-center gap-2 sm:gap-3 my-6">
@@ -116,7 +136,7 @@ export function OtpInput({ phoneNumber, onVerify, onResend, isLoading }: OtpInpu
       <div className="flex items-center justify-between text-xs border-t border-[#111111]/10 pt-4">
         <div className="text-[#6B7280] font-mono">
           {timer > 0 ? (
-            <span>RESEND IN <strong className="text-[#111111]">{timer}s</strong></span>
+            <span>RESEND CODE IN <strong className="text-[#111111]">{timer}s</strong></span>
           ) : (
             <span className="text-[#16A34A] font-bold">READY TO RESEND</span>
           )}
@@ -142,7 +162,7 @@ export function OtpInput({ phoneNumber, onVerify, onResend, isLoading }: OtpInpu
         {isLoading ? (
           <span className="flex items-center gap-2">
             <span className="w-4 h-4 border-2 border-[#FFD400] border-t-transparent rounded-full animate-spin" />
-            Verifying Cryptographic Hash...
+            Verifying OTP & Issuing Diploma...
           </span>
         ) : (
           <>

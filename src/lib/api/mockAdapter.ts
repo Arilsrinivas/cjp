@@ -2,6 +2,7 @@ import { Certificate, RegistryStatistics, SendOtpPayload, SendOtpResponse, Verif
 import { generateMockHash } from '@/lib/utils';
 
 const LOCAL_STORAGE_KEY = 'cockroach_registry_db_v1';
+const SESSION_STORAGE_KEY = 'cockroach_registry_sessions_v1';
 
 const INITIAL_CERTIFICATES: Certificate[] = [
   {
@@ -58,22 +59,48 @@ function saveCertificate(cert: Certificate) {
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(list));
 }
 
-// Temporary in-memory session cache for OTP verification flow
-const activeSessions = new Map<string, SendOtpPayload>();
+function saveSessionData(sessionId: string, payload: SendOtpPayload) {
+  if (typeof window === 'undefined') return;
+  try {
+    const raw = sessionStorage.getItem(SESSION_STORAGE_KEY) || '{}';
+    const sessions = JSON.parse(raw);
+    sessions[sessionId] = payload;
+    sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessions));
+  } catch (e) {
+    console.warn('SessionStorage error:', e);
+  }
+}
+
+function getSessionData(sessionId: string): SendOtpPayload | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = sessionStorage.getItem(SESSION_STORAGE_KEY);
+    if (!raw) return null;
+    const sessions = JSON.parse(raw);
+    return sessions[sessionId] || null;
+  } catch {
+    return null;
+  }
+}
 
 export const mockApiServices = {
   sendOtp: async (payload: SendOtpPayload): Promise<SendOtpResponse> => {
-    await new Promise((r) => setTimeout(r, 800)); // Simulate realistic network delay
+    await new Promise((r) => setTimeout(r, 600));
     const list = getStoredCertificates();
-    const existing = list.find((c) => c.phoneNumber.replace(/\s+/g, '') === payload.phoneNumber.replace(/\s+/g, ''));
+    const cleanInputPhone = payload.phoneNumber.replace(/\D/g, '');
+    
+    const existing = list.find((c) => {
+      const cleanCertPhone = c.phoneNumber.replace(/\D/g, '');
+      return cleanCertPhone && cleanCertPhone === cleanInputPhone;
+    });
 
     const sessionId = `SES_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    activeSessions.set(sessionId, payload);
+    saveSessionData(sessionId, payload);
 
     if (existing) {
       return {
         success: true,
-        message: 'Mobile number recognized. A certificate already exists for this number.',
+        message: 'Mobile number recognized. Existing certificate retrieved.',
         sessionId,
         existingCertificateId: existing.id,
       };
@@ -81,22 +108,28 @@ export const mockApiServices = {
 
     return {
       success: true,
-      message: 'OTP sent successfully to your mobile number. (Use demo OTP: 123456)',
+      message: 'OTP code sent successfully to your mobile number. (Use Demo Code: 123456)',
       sessionId,
     };
   },
 
   verifyOtp: async (payload: VerifyOtpPayload): Promise<VerifyOtpResponse> => {
-    await new Promise((r) => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, 800));
 
-    // For demo purposes, any 6 digit code or '123456' works
-    if (!payload.otp || payload.otp.length !== 6) {
-      throw new Error('Invalid OTP format. Must be 6 digits.');
+    // Validate 6 digit code format
+    const cleanOtp = payload.otp.trim();
+    if (!cleanOtp || cleanOtp.length !== 6 || isNaN(Number(cleanOtp))) {
+      throw new Error('Invalid OTP code. Please enter 6 numeric digits.');
     }
 
-    const sessionData = activeSessions.get(payload.sessionId);
+    const sessionData = getSessionData(payload.sessionId);
     const list = getStoredCertificates();
-    const existing = list.find((c) => c.phoneNumber.replace(/\s+/g, '') === payload.phoneNumber.replace(/\s+/g, ''));
+    const cleanInputPhone = payload.phoneNumber.replace(/\D/g, '');
+
+    const existing = list.find((c) => {
+      const cleanCertPhone = c.phoneNumber.replace(/\D/g, '');
+      return cleanCertPhone && cleanCertPhone === cleanInputPhone;
+    });
 
     if (existing) {
       return {
@@ -107,14 +140,17 @@ export const mockApiServices = {
       };
     }
 
-    // Create new lifetime certificate
+    // Generate & Issue new lifetime certificate
     const certNumber = `CRC-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
+    const memberName = sessionData?.fullName || 'Protest Movement Member';
+    const country = sessionData?.country || 'India';
+
     const newCert: Certificate = {
       id: certNumber,
       certificateNumber: certNumber,
-      memberName: sessionData?.fullName || 'Anonymous Cockroach Member',
+      memberName: memberName,
       phoneNumber: payload.phoneNumber,
-      country: sessionData?.country || 'Global',
+      country: country,
       issueDate: new Date().toISOString(),
       hash: generateMockHash(`${certNumber}-${payload.phoneNumber}-${Date.now()}`),
       verificationUrl: `https://registry.cockroach.org/verify/${certNumber}`,
@@ -134,7 +170,7 @@ export const mockApiServices = {
   },
 
   getCertificateById: async (certificateId: string): Promise<Certificate | null> => {
-    await new Promise((r) => setTimeout(r, 500));
+    await new Promise((r) => setTimeout(r, 400));
     const list = getStoredCertificates();
     const query = certificateId.trim().toUpperCase();
     const found = list.find((c) => c.id.toUpperCase() === query || c.certificateNumber.toUpperCase() === query || c.hash.toLowerCase() === certificateId.toLowerCase());
@@ -142,13 +178,13 @@ export const mockApiServices = {
   },
 
   getLatestMemberCertificate: async (): Promise<Certificate | null> => {
-    await new Promise((r) => setTimeout(r, 400));
+    await new Promise((r) => setTimeout(r, 300));
     const list = getStoredCertificates();
     return list[0] || null;
   },
 
   getStatistics: async (): Promise<RegistryStatistics> => {
-    await new Promise((r) => setTimeout(r, 400));
+    await new Promise((r) => setTimeout(r, 300));
     const list = getStoredCertificates();
     return {
       totalCertificates: 48920 + list.length,

@@ -3,8 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { SendOtpPayload } from '@/types/registry';
-import { ArrowRight, Smartphone, User, Globe, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Smartphone, User, Globe, ShieldCheck, Zap } from 'lucide-react';
 
 const claimSchema = z.object({
   fullName: z.string().min(2, 'Full name must be at least 2 characters.'),
@@ -21,36 +20,54 @@ interface ClaimFormProps {
 }
 
 const COUNTRY_CODES = [
+  { code: '+91', name: 'India 🇮🇳' },
   { code: '+1', name: 'United States / Canada 🇺🇸 🇨🇦' },
   { code: '+44', name: 'United Kingdom 🇬🇧' },
-  { code: '+91', name: 'India 🇮🇳' },
   { code: '+971', name: 'United Arab Emirates 🇦🇪' },
   { code: '+49', name: 'Germany 🇩🇪' },
   { code: '+33', name: 'France 🇫🇷' },
   { code: '+81', name: 'Japan 🇯🇵' },
   { code: '+61', name: 'Australia 🇦🇺' },
-  { code: '+55', name: 'Brazil 🇧🇷' },
-  { code: '+27', name: 'South Africa 🇿🇦' },
 ];
 
 export function ClaimForm({ onSubmit, isLoading }: ClaimFormProps) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<ClaimFormData>({
     resolver: zodResolver(claimSchema),
     defaultValues: {
-      fullName: '',
-      phoneNumber: '',
-      countryCode: '+1',
-      country: 'United States',
+      fullName: 'Aarav Mehta',
+      phoneNumber: '9876543210',
+      countryCode: '+91',
+      country: 'India',
     },
   });
+
+  const handleFillDemo = () => {
+    setValue('fullName', 'Aarav Mehta');
+    setValue('phoneNumber', '9876543210');
+    setValue('countryCode', '+91');
+    setValue('country', 'India');
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       
+      {/* Top Demo Shortcut Banner */}
+      <div className="flex items-center justify-between p-3 bg-[#FAF8F5] border border-[#111111]/20 text-xs">
+        <span className="font-mono text-gray-600">TESTING OTP LOGIN?</span>
+        <button
+          type="button"
+          onClick={handleFillDemo}
+          className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FFD400] text-[#111111] font-heading font-black uppercase text-[11px] border border-[#111111]"
+        >
+          <Zap className="w-3.5 h-3.5" /> Fill Demo Details
+        </button>
+      </div>
+
       {/* Full Name */}
       <div className="space-y-2">
         <label className="block text-xs font-heading font-bold uppercase tracking-wider text-[#111111] flex items-center gap-1.5">
@@ -59,7 +76,7 @@ export function ClaimForm({ onSubmit, isLoading }: ClaimFormProps) {
         </label>
         <input
           type="text"
-          placeholder="e.g. Alex Rivera"
+          placeholder="e.g. Aarav Mehta"
           {...register('fullName')}
           className="w-full bg-white border-2 border-[#111111] p-3.5 text-sm font-semibold text-[#111111] focus:outline-none focus:bg-[#FAF8F5] focus:border-[#FFD400] transition-colors"
         />
@@ -78,16 +95,14 @@ export function ClaimForm({ onSubmit, isLoading }: ClaimFormProps) {
           {...register('country')}
           className="w-full bg-white border-2 border-[#111111] p-3.5 text-sm font-semibold text-[#111111] focus:outline-none focus:border-[#FFD400] transition-colors"
         >
+          <option value="India">India 🇮🇳</option>
           <option value="United States">United States 🇺🇸</option>
           <option value="United Kingdom">United Kingdom 🇬🇧</option>
-          <option value="India">India 🇮🇳</option>
           <option value="United Arab Emirates">United Arab Emirates 🇦🇪</option>
           <option value="Germany">Germany 🇩🇪</option>
           <option value="France">France 🇫🇷</option>
           <option value="Japan">Japan 🇯🇵</option>
           <option value="Australia">Australia 🇦🇺</option>
-          <option value="Canada">Canada 🇨🇦</option>
-          <option value="Brazil">Brazil 🇧🇷</option>
         </select>
         {errors.country && (
           <p className="text-xs font-bold text-[#DC2626]">{errors.country.message}</p>
@@ -113,7 +128,7 @@ export function ClaimForm({ onSubmit, isLoading }: ClaimFormProps) {
           </select>
           <input
             type="tel"
-            placeholder="555 0198"
+            placeholder="9876543210"
             {...register('phoneNumber')}
             className="flex-1 bg-white border-2 border-[#111111] p-3.5 text-sm font-semibold text-[#111111] focus:outline-none focus:bg-[#FAF8F5] focus:border-[#FFD400]"
           />
