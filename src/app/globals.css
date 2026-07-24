@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: #F8F7F3;
+    --foreground: #111111;
+    --primary: #111111;
+    --accent: #FFD400;
+    --secondary: #6B7280;
+    --success: #16A34A;
+    --error: #DC2626;
+    --card-bg: #FFFFFF;
+    --border-color: rgba(17, 17, 17, 0.12);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-inter), sans-serif;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: var(--font-space-grotesk), sans-serif;
+  }
+}
+
+/* Editorial Yellow Accent Highlight Utility */
+.yellow-highlight {
+  background-color: #FFD400;
+  color: #111111;
+  padding: 0.1rem 0.4rem;
+  display: inline;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  font-weight: 700;
+}
+
+/* Certificate GUILLOCHE & PAPER TEXTURE PATTERN */
+.certificate-paper {
+  background-color: #FAF8F5;
+  background-image: 
+    radial-gradient(circle at 50% 50%, rgba(255, 212, 0, 0.05) 0%, transparent 60%),
+    repeating-linear-gradient(45deg, rgba(17, 17, 17, 0.015) 0px, rgba(17, 17, 17, 0.015) 2px, transparent 2px, transparent 8px),
+    repeating-linear-gradient(-45deg, rgba(17, 17, 17, 0.015) 0px, rgba(17, 17, 17, 0.015) 2px, transparent 2px, transparent 8px);
+}
+
+.certificate-border-double {
+  border: 4px double #111111;
+}
+
+.certificate-gold-accent {
+  border-color: #FFD400;
+}
+
+/* Marquee Ticker Keyframes */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-33.333%); }
+}
+
+.animate-marquee {
+  display: inline-flex;
+  animation: marquee 35s linear infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F8F7F3;
+}
+::-webkit-scrollbar-thumb {
+  background: #111111;
+  border-radius: 0px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FFD400;
+}
