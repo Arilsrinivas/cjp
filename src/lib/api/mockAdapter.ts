@@ -100,7 +100,7 @@ export const mockApiServices = {
     if (existing) {
       return {
         success: true,
-        message: 'Mobile number recognized. Existing certificate retrieved.',
+        message: 'Mobile number recognized. Existing lifetime certificate retrieved.',
         sessionId,
         existingCertificateId: existing.id,
       };
@@ -108,7 +108,7 @@ export const mockApiServices = {
 
     return {
       success: true,
-      message: 'OTP code sent successfully to your mobile number. (Use Demo Code: 123456)',
+      message: 'OTP code sent successfully to your mobile phone number.',
       sessionId,
     };
   },
@@ -116,7 +116,6 @@ export const mockApiServices = {
   verifyOtp: async (payload: VerifyOtpPayload): Promise<VerifyOtpResponse> => {
     await new Promise((r) => setTimeout(r, 800));
 
-    // Validate 6 digit code format
     const cleanOtp = payload.otp.trim();
     if (!cleanOtp || cleanOtp.length !== 6 || isNaN(Number(cleanOtp))) {
       throw new Error('Invalid OTP code. Please enter 6 numeric digits.');
@@ -140,9 +139,8 @@ export const mockApiServices = {
       };
     }
 
-    // Generate & Issue new lifetime certificate
     const certNumber = `CRC-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
-    const memberName = sessionData?.fullName || 'Protest Movement Member';
+    const memberName = sessionData?.fullName || 'Verified Cockroach Member';
     const country = sessionData?.country || 'India';
 
     const newCert: Certificate = {

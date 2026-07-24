@@ -3,10 +3,10 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowRight, Smartphone, User, Globe, ShieldCheck, Zap } from 'lucide-react';
+import { ArrowRight, Smartphone, User, Globe, ShieldCheck } from 'lucide-react';
 
 const claimSchema = z.object({
-  fullName: z.string().min(2, 'Full name must be at least 2 characters.'),
+  fullName: z.string().min(2, 'Full legal name must be at least 2 characters.'),
   phoneNumber: z.string().min(8, 'Phone number must be at least 8 digits.'),
   countryCode: z.string().min(1, 'Country code required.'),
   country: z.string().min(2, 'Country required.'),
@@ -34,41 +34,21 @@ export function ClaimForm({ onSubmit, isLoading }: ClaimFormProps) {
   const {
     register,
     handleSubmit,
-    setValue,
     formState: { errors },
   } = useForm<ClaimFormData>({
     resolver: zodResolver(claimSchema),
     defaultValues: {
-      fullName: 'Aarav Mehta',
-      phoneNumber: '9876543210',
+      fullName: '',
+      phoneNumber: '',
       countryCode: '+91',
       country: 'India',
     },
   });
 
-  const handleFillDemo = () => {
-    setValue('fullName', 'Aarav Mehta');
-    setValue('phoneNumber', '9876543210');
-    setValue('countryCode', '+91');
-    setValue('country', 'India');
-  };
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       
-      {/* Top Demo Shortcut Banner */}
-      <div className="flex items-center justify-between p-3 bg-[#FAF8F5] border border-[#111111]/20 text-xs">
-        <span className="font-mono text-gray-600">TESTING OTP LOGIN?</span>
-        <button
-          type="button"
-          onClick={handleFillDemo}
-          className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FFD400] text-[#111111] font-heading font-black uppercase text-[11px] border border-[#111111]"
-        >
-          <Zap className="w-3.5 h-3.5" /> Fill Demo Details
-        </button>
-      </div>
-
-      {/* Full Name */}
+      {/* Full Legal Name */}
       <div className="space-y-2">
         <label className="block text-xs font-heading font-bold uppercase tracking-wider text-[#111111] flex items-center gap-1.5">
           <User className="w-3.5 h-3.5 text-[#111111]" />
@@ -76,9 +56,9 @@ export function ClaimForm({ onSubmit, isLoading }: ClaimFormProps) {
         </label>
         <input
           type="text"
-          placeholder="e.g. Aarav Mehta"
+          placeholder="Enter your full legal name"
           {...register('fullName')}
-          className="w-full bg-white border-2 border-[#111111] p-3.5 text-sm font-semibold text-[#111111] focus:outline-none focus:bg-[#FAF8F5] focus:border-[#FFD400] transition-colors"
+          className="w-full bg-white border-2 border-[#111111] p-3.5 text-sm font-semibold text-[#111111] placeholder:text-gray-400 focus:outline-none focus:bg-[#FAF8F5] focus:border-[#FFD400] transition-colors"
         />
         {errors.fullName && (
           <p className="text-xs font-bold text-[#DC2626]">{errors.fullName.message}</p>
@@ -109,7 +89,7 @@ export function ClaimForm({ onSubmit, isLoading }: ClaimFormProps) {
         )}
       </div>
 
-      {/* Phone Number with Country Code */}
+      {/* Mobile Phone Number */}
       <div className="space-y-2">
         <label className="block text-xs font-heading font-bold uppercase tracking-wider text-[#111111] flex items-center gap-1.5">
           <Smartphone className="w-3.5 h-3.5 text-[#111111]" />
@@ -128,9 +108,9 @@ export function ClaimForm({ onSubmit, isLoading }: ClaimFormProps) {
           </select>
           <input
             type="tel"
-            placeholder="9876543210"
+            placeholder="Enter mobile phone number"
             {...register('phoneNumber')}
-            className="flex-1 bg-white border-2 border-[#111111] p-3.5 text-sm font-semibold text-[#111111] focus:outline-none focus:bg-[#FAF8F5] focus:border-[#FFD400]"
+            className="flex-1 bg-white border-2 border-[#111111] p-3.5 text-sm font-semibold text-[#111111] placeholder:text-gray-400 focus:outline-none focus:bg-[#FAF8F5] focus:border-[#FFD400]"
           />
         </div>
         {errors.phoneNumber && (
@@ -141,7 +121,7 @@ export function ClaimForm({ onSubmit, isLoading }: ClaimFormProps) {
       {/* Verification Notice */}
       <div className="p-3.5 bg-[#FAF8F5] border border-[#111111]/20 text-[11px] text-[#6B7280] font-medium flex items-center gap-2">
         <ShieldCheck className="w-4 h-4 text-[#16A34A] shrink-0" />
-        <span>1 Lifetime Certificate per verified mobile number. OTP code valid for 10 minutes.</span>
+        <span>1 Lifetime Certificate per verified mobile number. OTP valid for 10 minutes.</span>
       </div>
 
       {/* Submit Button */}
@@ -153,7 +133,7 @@ export function ClaimForm({ onSubmit, isLoading }: ClaimFormProps) {
         {isLoading ? (
           <span className="flex items-center gap-2">
             <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
-            Sending OTP Code...
+            Dispatching OTP Code...
           </span>
         ) : (
           <>
